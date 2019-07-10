@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="" >
+<meta name="keywords" content="" />
+<title>Img Upload</title>
+<link rel="shortcut icon" href="http://cdn.quinnox.com/images/favicon.ico" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<style>
+html,body{height: 100%;}
+body {background-color: #f7f7f7;}
+.wrapper {position: relative; height: 100%;width: 100%;}
+.leftbar {background-color: #2a3f54;width:25%; height: 100%;float: left; padding: 20px 20px 20px 5%; }
+.logo {width: 100%;}
+.logo a {display: block; font-weight: bold;color: #e2f2fa;font-size: 2em;text-decoration: none;}
+.formDiv {margin-top: 40px;}
+label {color: #fefeff;}
+.btnImgUpload {position: relative; display: block;}
+.imgUpload {position: absolute;top: 0; left: 0; width: 100%; height: 100%; opacity: 0;cursor: pointer;}
+.btn {background-color: #97b7d8;color: #2a3f54;border: 1px solid #97b7d8; padding: 10px 20%;font-weight: bold;}
+.filesUploaded {margin: 20px 0 30px 0;max-height: 300px;
+    overflow-y: auto;}
+.filesUploaded > span {color: #abb0b7;font-size: 1em; display: block; margin-bottom: 10px;}
+.filesUploaded > ul {list-style-type: none; padding: 0 0 20px 0; margin: 0;color: #fefeff;border-bottom: 1px solid #fefeff; }
+.filesUploaded > ul > li {display: block; width: 100%; margin-bottom: 8px;}
+.filesUploaded > ul > li > i {float: right;font-size: 1em;    font-style: normal; font-family: sans-serif;cursor: pointer;}
+.slidecontainer {
+    width: 100%;margin: 15px 0;
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 10px;
+    border-radius: 5px;
+    background: #fefeff;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+	appearance: none;
+    width: 23px;
+    height: 24px;
+    border: 0;
+    background: #97b7d8;
+	border-radius: 50%;
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 23px;
+	border-radius: 50%;
+    height: 24px;
+    border: 0;
+    background: #97b7d8;
+    cursor: pointer;
+}
+.btnDetect {margin-top: 20px;}
+/**left content css ends***/
+
+.content {padding: 20px; text-align: center;color: #414042;width:75%; float: left;}
+.count {font-weight: bold;font-size: 1.2em;}
+.imgHolder {border: 1px solid #bcbec0;min-height: 500px;background-color: #fff;width: 100%;}
+.imgHolder > img {width: 100%; height: auto; vertical-align: top;}
+</style>
+        <script language="javascript" type="text/javascript">
+      function ChangePhoto(name, img) {
+        img = typeof img !== 'undefined' ? img : "{{ result['original'] }}";
+        target = document.getElementById("label");
+        target.innerHTML = name;
+        target = document.getElementById("photo");
+        target.src = img;
+      }
+      function WaitDisplay() {
+        target = document.getElementById("result");
+        target.style.display="none";
+        target = document.getElementById("loading");
+        target.style.display="";
+        setTimeout(function() {
+          document.getElementById("upload").submit();}, 100);
+        }
+    </script>
+</head>
+<body>
+{% from "_formhelpers.html" import render_field %}
+<!--<div class="alert alert-success" role="alert">Well done! You successfully read this important alert message.</div>-->
+<div class="wrapper">
+	<div class="leftbar">
+		<div class="logo">
+			<a href="javascript:;">qSense</a>
+		</div>
+		<div class="formDiv">
+			<form id="upload" method=post action={{ url_for('post') }} enctype="multipart/form-data">
+				<div class="form-group">
+					<label for="exampleInputFile">Upload File</label>
+					<button type="button" class="btn btn-default btnImgUpload">
+                         {{ render_field(photo_form.input_photo) }}
+						<input type="file" id="imgUpload" class="imgUpload" name="exampleInputFile">Browse
+					</button>
+				</div>
+				<div class="filesUploaded">
+					<span>Files uploaded:</span>
+					<ul>
+						<li><span class="fileName">{{result}}</span><i>X</i></li>
+					</ul>
+				</div>
+				<div class="slidecontainer">
+					<input type="range" min="0.1" max="1" value="0.7" step="any" class="slider" id="myRange" name="myRange">
+				</div>
+				<div class="form-group">
+					<label for="range">Accuracy</label>
+					<input type="text" class="form-control" id="rangeVal" placeholder="0.7" readonly>
+				</div>
+				<button type="submit" class="btn btn-default btnDetect">Detect</button>
+			</form>
+		</div>
+	</div>
+	<div class="content">
+		<p>Chillies Detected: <span class="count">{{count}}</span></p>
+		<!--<iframe src="sample.html" height="200" width="300"></iframe>-->
+		<div class="imgHolder"><img src="data:image/png;base64,{{ results }}"/></div>
+		<!--<iframe src="http://127.0.0.1:5000/detectObject"></iframe>-->
+	</div>
+
+</div>
+
+
+<!--<script src="assets/js/jquery-1.12.4.min.js"></script>
+<script src="assets/js/custom.js"></script>-->
+<script>
+var slider = document.getElementById("myRange");
+var output = document.getElementById("rangeVal");
+output.value = slider.value;
+
+slider.oninput = function() {
+  output.value = this.value;
+}
+</script>
+</body>
+
+</html>

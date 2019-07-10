@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="" >
+<meta name="keywords" content="" />
+<title>Img Upload</title>
+<link rel="shortcut icon" href="http://cdn.quinnox.com/images/favicon.ico" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/D925407B-4386-3B43-B2F1-BAACE2AC97E3/main.js" charset="UTF-8"></script><style>
+html,body{height: 100%;}
+body {background-color: #f7f7f7;}
+.wrapper {position: relative; height: 100%;width: 100%;}
+.leftbar {background-color: #2a3f54;width:25%; height: 100%;float: left; padding: 20px 20px 20px 20px; }
+.logo {width: 100%;}
+.logo a {display: block; font-weight: bold;color: #e2f2fa;font-size: 2em;text-decoration: none;}
+.formDiv {margin-top: 40px;}
+label {color: #fefeff; float:left; padding:5px 20px 0 0;}
+.btnImgUpload {position: relative; display: block; width:100px; height:30px; float:left;}
+.imgUpload {position: absolute;top: 0; left: 0; width: 100%; height: 100%; opacity: 0;cursor: pointer;}
+.btn {background-color: #97b7d8;color: #2a3f54;border: 1px solid #97b7d8; padding: 10px 20%;font-weight: bold;}
+
+.btn-browse {background-color:#2a3f54; color: #2a3f54;border: 1px solid #97b7d8; padding: 4px 10px 4px 10px;font-weight: bold; color:#fff; border-radius:4px; text-align:center; cursor: pointer;}
+
+
+
+.filesUploaded {margin: 20px 0 30px 0;max-height: 300px; overflow-y: auto; width:100%; padding-top:30px;}
+.filesUploaded > span {color: #abb0b7;font-size: 1em; display: block; margin-bottom: 10px;}
+.filesUploaded > ul {list-style-type: none; padding: 0 0 20px 0; margin: 0;color: #fefeff;border-bottom: 1px solid #fefeff; }
+.filesUploaded > ul > li {display: block; width: 100%; margin-bottom: 8px;}
+.filesUploaded > ul > li > i {float: right;font-size: 1em;    font-style: normal; font-family: sans-serif;cursor: pointer;}
+.slidecontainer {
+    width: 100%;margin: 15px 0;
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 10px;
+    border-radius: 5px;
+    background: #fefeff;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+	appearance: none;
+    width: 23px;
+    height: 24px;
+    border: 0;
+    background: #97b7d8;
+	border-radius: 50%;
+    cursor: pointer;
+}
+
+.para2{width:100%;}
+.coconuts-count{width:32.5%; float:left; background-color:#fff; margin-bottom:10px; -webkit-box-shadow:0 1px 2px rgba(0,0,0,0,0.07); box-shadow: 0 1px 2px rgba(0,0,0,0.07); padding:40px 0;}
+.mr-10{margin-right:20px;}
+.count-text{font-size:22px; font-weight:bold; padding-left:10px; color:#2a3f54;}
+.para2 > p{
+display: flex;
+    justify-content: space-between;
+	}
+.slider::-moz-range-thumb {
+    width: 23px;
+	border-radius: 50%;
+    height: 24px;
+    border: 0;
+    background: #97b7d8;
+    cursor: pointer;
+}
+.btnDetect {margin-top: 20px;}
+/**left content css ends***/
+.content {padding: 20px; text-align: center;color: #414042;width:75%; float: left;}
+.count {font-weight: bold;font-size: 1.2em;}
+.imgHolder {/*border: 1px solid #bcbec0;*/-webkit-box-shadow:0 1px 2px rgba(0,0,0,0,0.07); box-shadow: 0 1px 2px rgba(0,0,0,0.07);/*min-height: 500px;*/background-color: #fff;width: 100%; height: 520px; overflow-y: auto;}
+.imgHolder > img {width: 100%; height: auto; vertical-align: top;}
+
+.title{font-size:24px;}
+</style>
+</head>
+<body>
+<!--<div class="alert alert-success" role="alert">Well done! You successfully read this important alert message.</div>-->
+<div class="wrapper">
+	<div class="leftbar">
+		<div class="logo">
+			<a href="javascript:;">Dashboard</a>
+		</div>
+		<div class="formDiv">
+			  <form method="POST" action="{{ url_for('post') }}" enctype="multipart/form-data">
+				<div class="form-group">
+					<label for="exampleInputFile">Upload File</label>
+					<button type="button" class="btn-browse btn-default btnImgUpload">
+						<input type="file" id="imgUpload" class="imgUpload" name="exampleInputFile" multiple webkitdirectory mozdirectory accept="image/*">Browse
+					</button>
+				</div>
+				<div class="filesUploaded">
+					<span>Files uploaded:{{filenames}}</span>
+					<ul>
+						<li><span class="fileName"></span><i>X</i></li>
+					</ul>
+				</div>
+				
+				<div class="form-group">
+					<label for="range">Accuracy</label>
+					<input type="text"  class="form-control" id="rangeVal" placeholder="0.8" readonly>
+				</div>
+<div class="slidecontainer">
+					<input type="range" min="0.1" max="1" value="0.8" step="any" class="slider" id="myRange" name="myRange">
+				</div>
+				<button type="submit" class="btn btn-default btnDetect">Detect</button>
+			</form>
+		</div>
+	</div>
+	<div class="content">
+		<p><span class="title">Total Mature Coconuts Detected : <span class="count">{{count}}</span></span></p>
+		<div class= "para2">
+		<p>
+		<div class="coconuts-count mr-10">Green Coconuts (6 to 8 Months):<span class="count_green count-text">{{count_green}}</span></div>
+		<div class="coconuts-count mr-10">Brown Coconuts (12 to 15 Months): <span class="count_brown count-text">{{count_brown}}</span></div>
+</p>
+		</div>
+		<!--<iframe src="sample.html" height="200" width="300"></iframe>-->
+		<!--<div class="imgHolder"><img src="{{ img }}" alt="Image Placeholder" height="100"></div>-->
+		<div class="imgHolder">
+		{% for result in result_print %}
+		<img src="data:image/png;base64,{{ result}}"/>
+		{% endfor %}
+			</div>
+		
+	</div>
+	
+</div>
+
+
+<!--<script src="assets/js/jquery-1.12.4.min.js"></script>
+<script src="assets/js/custom.js"></script>-->
+<script>
+var slider = document.getElementById("myRange");
+var output = document.getElementById("rangeVal");
+output.value = slider.value;
+
+slider.oninput = function() {
+  output.value = this.value;
+}
+</script>
+</body>
+
+</html>
