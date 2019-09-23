@@ -1,6 +1,7 @@
+
 from flask import Flask, render_template, request, make_response
 from werkzeug import secure_filename
-
+from sklearn.ensemble import RandomForestRegressor
 import base64
 import pandas as pd
 from sklearn.linear_model import LinearRegression
@@ -15,6 +16,8 @@ from numpy import arange, sin, pi
 import tensorflow as tf
 from utils import label_map_util
 from PIL import Image
+from sklearn.externals import joblib
+
 
 sys.path.append("..")
 LARGE_FONT = ("Verdana", 12)
@@ -33,12 +36,17 @@ def start_page():
     """
     return render_template('index1.html')
 
+filename = 'finalized_model.sav'
+#joblib.dump(reg, filename)
+reg = joblib.load(filename)
 
-def detect_object(file, received_param):
+
+def detect_object(file, received_param,reg):
     """
     This function does
     :param file: input images
-    :param received_param: Dictionary use to initialize variable
+    :param received_param: Dictionary use to initialize variable such as list_result,count,count_brown,count_yellow,count_green
+
     :return: received_param : Dictionary
     """
     list_result = received_param["result_print"]
@@ -131,10 +139,12 @@ def detect_object(file, received_param):
                     count = count + 1
                     if final_classes [i]== 1.0:
                         count_green = count_green + 1
+
                     elif final_classes[i] == 2.0:
                         count_yellow = count_yellow + 1
                     elif final_classes[i] == 3.0:
                         count_brown = count_brown + 1
+
     count_brown_final = count_brown + count_yellow
     count_mature_new = count_green + count_brown_final
 
@@ -145,53 +155,10 @@ def detect_object(file, received_param):
     print("BrownCount",count_brown)
     print("BrownYellowCount", count_brown_final)
     print("MatureCount", count_mature_new)
-    sec_df = pd.read_csv("D:/Marico/tensorflow2_main/models/research/object_detection/carePackage.csv")
-    #print(sec_df)
 
-    X = sec_df.drop('actual_nuts',axis =1)
-    Y = sec_df['actual_nuts']
-
-    print("columns",X.columns)
-
-    reg = LinearRegression().fit(X, Y)
-    print("Score:",reg.score(X, Y))
-    print("coeff;",reg.coef_)
-    print("intercept",reg.intercept_)
-
-    green = count_green
-    brown = count_brown_final
-    tree_no = final_file_split
-    pred_count = reg.predict(np.array([[1, green, brown]]))
-    print("Tree No:",tree_no)
-    print("Final count",pred_count)
-    mean_intercept = reg.intercept_/2
-    pred_green = green + mean_intercept
-    final_green = int(pred_green)
-    pred_brown = brown + mean_intercept
-    final_brown = int(pred_brown)
-    print("pred_green",final_green)
-    received_param["count_green"]=final_green
-    print("pred_brown",final_brown)
-    received_param["count_brown"]= final_brown
-    final_matured_nuts = final_green+final_brown
-    print("final_matured_nuts",final_matured_nuts)
-    received_param["count"]= final_matured_nuts
-    sec_df_new = pd.read_csv("D:/Marico/tensorflow2_main/models/research/object_detection/Book1.csv")
-    print("sec_df_new",sec_df_new)
-    print("validation",sec_df_new.columns)
-    actual_count_nuts = sec_df_new[sec_df_new['tree_no'] == tree_no]['actual']
-    print("actual_count_nuts!!!",actual_count_nuts)
-    print("actual_count_nuts type!!!",actual_count_nuts)
-    mape = np.mean(np.abs(actual_count_nuts - final_matured_nuts)/actual_count_nuts)
-
-    print("actual_count_nuts",actual_count_nuts)
-    print("final_matured_nuts",final_matured_nuts)
-
-    print(mape)
-    print("Acc %", (1 - mape)*100)
     image_np1 = image_np
-    print("The approximate count of Coconuts are",final_matured_nuts)
-    received_param["count"]=final_matured_nuts
+    print("The approximate count of Coconuts are",count_mature_new)
+    received_param["count"]=count_mature_new
     f = Figure(figsize=(IMAGE_SIZE))
 
     a = f.add_subplot(111)
@@ -233,7 +200,7 @@ def post():
         print(f)
 
         print(os.path.join(app.config['UPLOAD_FOLDER'],f))
-        returned_result=detect_object(os.path.join(app.config['UPLOAD_FOLDER'],f),received_param)
+        returned_result=detect_object(os.path.join(app.config['UPLOAD_FOLDER'],f),received_param,reg)
         os.remove("{}/{}".format(UPLOAD_FOLDER, f))
         received_param=dict(returned_result)
     return render_template("index1.html", result_print=received_param["result_print"], count=received_param["count"],
@@ -242,5 +209,5 @@ def post():
 
 
 if __name__ == '__main__':
-    app.run(port=8080, debug=True)
+    app.run(host='0.0.0.0',port=8189,threaded=True,debug=True)
 
